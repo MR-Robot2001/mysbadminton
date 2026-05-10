@@ -72,28 +72,28 @@
         <div id="toast-container" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 w-full max-w-xs px-4 pointer-events-none z-[60]"></div>
     </div>
 
-    <!-- Templates (Hidden) -->
-    <div id="templates" class="hidden">
+    <!-- Templates (Off-screen for html2canvas) -->
+    <div id="templates-offscreen" style="position: absolute; left: -9999px; top: 0;">
         <!-- Billing Poster Template -->
         <div id="poster-template" class="p-6 bg-white w-[350px] border">
             <div class="text-center mb-4">
                 <h2 class="text-2xl font-bold text-blue-600 uppercase" id="poster-club-name"></h2>
                 <p class="text-slate-500 text-sm" id="poster-date"></p>
             </div>
-            <div class="space-y-2 mb-4 border-y py-3">
-                <div class="flex justify-between"><span>Court Fee</span><span id="poster-court"></span></div>
-                <div class="flex justify-between"><span>Shuttle Fee</span><span id="poster-shuttle"></span></div>
-                <div class="flex justify-between font-semibold border-t pt-2"><span>Total Players</span><span id="poster-count"></span></div>
+            <div class="space-y-2 mb-4 border-y py-3 text-slate-700">
+                <div class="flex justify-between"><span>Court Fee</span><span id="poster-court" class="font-medium text-slate-900"></span></div>
+                <div class="flex justify-between"><span>Shuttle Fee</span><span id="poster-shuttle" class="font-medium text-slate-900"></span></div>
+                <div class="flex justify-between font-semibold border-t pt-2"><span>Total Players</span><span id="poster-count" class="text-slate-900"></span></div>
                 <div class="flex justify-between text-lg font-bold text-blue-600"><span>Each Pays</span><span id="poster-amount"></span></div>
             </div>
             <div class="mb-4">
                 <p class="text-xs font-bold text-slate-400 uppercase mb-1">Players</p>
-                <p class="text-sm leading-relaxed" id="poster-names"></p>
+                <p class="text-sm leading-relaxed text-slate-600" id="poster-names"></p>
             </div>
-            <div class="flex justify-center">
-                <div id="poster-qr" class="p-2 bg-white border rounded"></div>
+            <div class="flex justify-center mt-6">
+                <div id="poster-qr" class="p-2 bg-white border-2 border-slate-100 rounded-xl"></div>
             </div>
-            <p class="text-center text-[10px] text-slate-400 mt-4">Scan to pay via any UPI App</p>
+            <p class="text-center text-[10px] text-slate-400 mt-6 tracking-widest uppercase font-bold">Scan with any UPI App</p>
         </div>
     </div>
 

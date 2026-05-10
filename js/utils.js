@@ -51,6 +51,9 @@ const UTILS = {
   async sharePoster(posterElementId, summaryText) {
     const element = document.getElementById(posterElementId);
     try {
+      // Small delay to ensure QR code and fonts are fully rendered
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       const canvas = await html2canvas(element, { 
         scale: 2,
         useCORS: true,

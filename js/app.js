@@ -303,7 +303,23 @@ const App = {
   async handleSharePoster() {
     if (!this.state.sessionResult) return;
     const s = this.state.sessionResult;
-    const summaryText = `🏸 *${CONFIG.CLUB_NAME}*\n📅 ${UTILS.formatDate(new Date())}\n💰 *Each: ₹${s.perHead}*\n👥 Players: ${s.finalCount}\n\nPlease scan QR or pay via UPI.`;
+    
+    // Detailed breakdown for WhatsApp caption
+    const summaryText = `🏸 *${CONFIG.CLUB_NAME}*
+📅 ${UTILS.formatDate(new Date())}
+
+💰 *Each Pays: ₹${s.perHead}*
+
+📊 *Breakdown:*
+• Court: ₹${s.courtCharge}
+• Shuttle: ₹${s.shuttleCharge}
+• Total: ₹${s.total}
+• Players: ${s.finalCount}
+
+👥 *Players:*
+${s.players.join(', ')}
+
+Please scan the QR code in the image above to pay via any UPI App. 🙏`;
     
     await UTILS.sharePoster('poster-template', summaryText);
   },
