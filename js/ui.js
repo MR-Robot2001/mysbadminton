@@ -2,20 +2,26 @@ import CONFIG from './config.js';
 import UTILS from './utils.js';
 
 const UI = {
-  pollView() {
+  pollView(activeTab = 'today') {
     const savedName = localStorage.getItem(CONFIG.USER_NAME_KEY) || "";
     return `
       <div class="space-y-6 animate-fade-in">
-        <div class="text-center py-8">
-          <h2 class="text-3xl font-extrabold text-slate-900 mb-2">Coming Today?</h2>
-          <p class="text-slate-500">${UTILS.formatDate(new Date())}</p>
+        <!-- Date Selector Tabs -->
+        <div class="flex bg-white rounded-2xl p-1 shadow-sm border">
+          <button class="flex-1 py-3 text-sm font-bold poll-date-tab ${activeTab === 'today' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}" data-tab="today">TODAY</button>
+          <button class="flex-1 py-3 text-sm font-bold poll-date-tab ${activeTab === 'tomorrow' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}" data-tab="tomorrow">TOMORROW</button>
+        </div>
+
+        <div class="text-center py-4">
+          <h2 class="text-3xl font-extrabold text-slate-900 mb-1">Coming ${activeTab === 'today' ? 'Today' : 'Tomorrow'}?</h2>
+          <p class="text-slate-500 text-sm font-medium">${activeTab === 'today' ? UTILS.formatDate(new Date()) : UTILS.formatDate(new Date(Date.now() + 86400000))}</p>
         </div>
         
         <div class="glass-card p-6 rounded-3xl shadow-sm space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">Your Name</label>
             <input type="text" id="poll-name" value="${savedName}" placeholder="Enter full name" 
-                   class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                   class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-base">
           </div>
           
           <div class="grid grid-cols-2 gap-4 pt-2">
@@ -80,10 +86,10 @@ const UI = {
                 </div>
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Actual Players Count</label>
+                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Actual Players</label>
                 <div class="flex gap-2">
-                  <input type="number" id="bill-count" value="${confirmedNames.length}" class="flex-grow p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
-                  <button id="btn-reconcile" class="p-4 bg-blue-100 text-blue-600 rounded-2xl font-bold">Reconcile</button>
+                  <input type="number" id="bill-count" value="${confirmedNames.length}" class="w-20 p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                  <button id="btn-reconcile" class="flex-grow p-4 bg-blue-100 text-blue-600 rounded-2xl font-bold text-sm">Reconcile</button>
                 </div>
               </div>
             </div>

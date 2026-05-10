@@ -31,12 +31,12 @@ const API = {
   },
 
   // Public Actions
-  poll(name, status) {
-    return this.request('poll', 'POST', { name, status });
+  poll(name, status, offset = 0) {
+    return this.request('poll', 'POST', { name, status, offset });
   },
 
-  getToday() {
-    return this.request('getToday', 'GET');
+  getAttendance(offset = 0) {
+    return this.request('getToday', 'GET', { offset });
   },
 
   // Admin Actions

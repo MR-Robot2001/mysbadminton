@@ -1,6 +1,6 @@
 const CONFIG = {
   // Replace with your deployed Google Apps Script Web App URL
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzAcgOUunU0Ii8cAKoIpGn02Ur1crHErqBlEM-RQOu4EV1k9893r0RI60RMo7oCrJIS/exec",
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbx5wCfBtOIs5ebci3kl09irM1tIivyy1AgI2jofc8HngnsGxC7cerELsCIkYedqNik/exec",
   
   // Your UPI ID for QR generation
   UPI_ID: "gowdavinu96-2@okicici",

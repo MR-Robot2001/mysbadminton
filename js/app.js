@@ -9,7 +9,8 @@ const App = {
     confirmedNames: [],
     reconciledNames: [],
     sessionResult: null,
-    currentTab: 'billing'
+    currentTab: 'billing',
+    pollTab: 'today'
   },
 
   async init() {
@@ -65,11 +66,20 @@ const App = {
 
   async renderPoll() {
     const container = document.getElementById('content-area');
-    container.innerHTML = UI.pollView();
+    container.innerHTML = UI.pollView(this.state.pollTab);
     
-    // Load confirmed names
+    // Switch Tabs
+    document.querySelectorAll('.poll-date-tab').forEach(btn => {
+      btn.onclick = (e) => {
+        this.state.pollTab = e.target.dataset.tab;
+        this.renderPoll();
+      };
+    });
+
+    // Load confirmed names for selected date
+    const offset = this.state.pollTab === 'today' ? 0 : 1;
     try {
-      this.state.confirmedNames = await API.getToday();
+      this.state.confirmedNames = await API.getAttendance(offset);
       this.updateConfirmedList();
     } catch (e) {
       UTILS.showToast('Failed to load attendance', 'error');
@@ -78,6 +88,7 @@ const App = {
     // Handlers
     document.getElementById('poll-yes').onclick = () => this.handlePoll('YES');
     document.getElementById('poll-no').onclick = () => this.handlePoll('NO');
+    lucide.createIcons();
   },
 
   renderLogin() {
@@ -102,11 +113,12 @@ const App = {
     document.getElementById('nav-history').classList.remove('hidden');
 
     try {
-      this.state.confirmedNames = await API.getToday();
+      this.state.confirmedNames = await API.getAttendance(0); // Today's attendance
       this.state.reconciledNames = [...this.state.confirmedNames];
       container.innerHTML = UI.adminDashboardView(this.state.confirmedNames);
       this.setupAdminHandlers();
     } catch (e) {
+      console.error("Admin render failed:", e);
       UTILS.showToast('Admin load failed', 'error');
     }
   },
@@ -145,15 +157,16 @@ const App = {
   async handlePoll(status) {
     const nameInput = document.getElementById('poll-name');
     const name = nameInput.value.trim();
-    
+
     if (!name) {
       UTILS.showToast('Please enter your name', 'error');
       return;
     }
 
     UTILS.setLoading(true);
+    const offset = this.state.pollTab === 'today' ? 0 : 1;
     try {
-      await API.poll(name, status);
+      await API.poll(name, status, offset);
       localStorage.setItem(CONFIG.USER_NAME_KEY, name);
       UTILS.showToast(status === 'YES' ? 'Vote confirmed!' : 'Vote removed');
       await this.renderPoll(); // Refresh
