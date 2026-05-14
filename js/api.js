@@ -31,29 +31,41 @@ const API = {
   },
 
   // Public Actions
-  poll(name, status, offset = 0) {
-    return this.request('poll', 'POST', { name, status, offset });
+  poll(name, status, sessionId) {
+    return this.request('poll', 'POST', { name, status, sessionId });
   },
 
-  getAttendance(offset = 0) {
-    return this.request('getToday', 'GET', { offset });
+  getAttendance(sessionId) {
+    return this.request('getToday', 'GET', { sessionId });
+  },
+
+  getScheduled(offset = 0) {
+    return this.request('getScheduled', 'GET', { offset });
+  },
+
+  getSessionDetails(sessionId) {
+    return this.request('getSessionDetails', 'GET', { sessionId });
   },
 
   // Admin Actions
-  addExtraPlayers(names) {
-    return this.request('addExtraPlayers', 'POST', { names });
+  createSession(date, time) {
+    return this.request('createSession', 'POST', { date, time });
   },
 
-  removePlayers(names) {
-    return this.request('removePlayers', 'POST', { names });
+  addExtraPlayers(names, sessionId) {
+    return this.request('addExtraPlayers', 'POST', { names, sessionId });
+  },
+
+  removePlayers(names, sessionId) {
+    return this.request('removePlayers', 'POST', { names, sessionId });
   },
 
   syncSession(sessionData) {
     return this.request('syncSession', 'POST', { sessionData });
   },
 
-  markPaid(name, paid) {
-    return this.request('markPaid', 'POST', { name, paid });
+  markPaid(name, paid, sessionId) {
+    return this.request('markPaid', 'POST', { name, paid, sessionId });
   },
 
   getTracker() {

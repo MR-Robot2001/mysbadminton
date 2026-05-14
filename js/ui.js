@@ -2,19 +2,38 @@ import CONFIG from './config.js';
 import UTILS from './utils.js';
 
 const UI = {
-  pollView(activeTab = 'today') {
+  pollView(session, availableSessions = []) {
     const savedName = localStorage.getItem(CONFIG.USER_NAME_KEY) || "";
+    
+    if (!session) {
+      return `
+        <div class="space-y-6 animate-fade-in">
+          <div class="text-center py-4">
+            <h2 class="text-3xl font-extrabold text-slate-900 mb-1">Select a Session</h2>
+            <p class="text-slate-500 text-sm font-medium">Please choose a session to vote</p>
+          </div>
+          
+          <div class="space-y-3">
+            <div class="flex bg-white rounded-2xl p-1 shadow-sm border mb-4">
+              <button class="flex-1 py-3 text-sm font-bold poll-date-tab" id="poll-tab-today">TODAY</button>
+              <button class="flex-1 py-3 text-sm font-bold poll-date-tab" id="poll-tab-tomorrow">TOMORROW</button>
+            </div>
+            
+            <div id="available-sessions-list" class="space-y-3">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="space-y-6 animate-fade-in">
-        <!-- Date Selector Tabs -->
-        <div class="flex bg-white rounded-2xl p-1 shadow-sm border">
-          <button class="flex-1 py-3 text-sm font-bold poll-date-tab ${activeTab === 'today' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}" data-tab="today">TODAY</button>
-          <button class="flex-1 py-3 text-sm font-bold poll-date-tab ${activeTab === 'tomorrow' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-400'}" data-tab="tomorrow">TOMORROW</button>
-        </div>
-
         <div class="text-center py-4">
-          <h2 class="text-3xl font-extrabold text-slate-900 mb-1">Coming ${activeTab === 'today' ? 'Today' : 'Tomorrow'}?</h2>
-          <p class="text-slate-500 text-sm font-medium">${activeTab === 'today' ? UTILS.formatDate(new Date()) : UTILS.formatDate(new Date(Date.now() + 86400000))}</p>
+          <h2 class="text-3xl font-extrabold text-slate-900 mb-1">Coming?</h2>
+          <p class="text-blue-600 font-bold text-lg">${session.time}</p>
+          <p class="text-slate-500 text-sm font-medium">${UTILS.formatDate(session.date)}</p>
+          <button id="btn-change-session" class="text-xs text-slate-400 underline mt-2">Change Session</button>
         </div>
         
         <div class="glass-card p-6 rounded-3xl shadow-sm space-y-4">
@@ -60,63 +79,99 @@ const UI = {
     `;
   },
 
-  adminDashboardView(confirmedNames) {
+  adminDashboardView(confirmedNames, activeSession = null) {
     return `
       <div class="space-y-6 animate-fade-in">
         <!-- Tabs -->
         <div class="flex border-b bg-white -mx-4 px-4 sticky top-14 z-40">
-          <button class="flex-1 py-4 text-sm font-bold admin-tab tab-active" data-tab="billing">Billing</button>
+          <button class="flex-1 py-4 text-sm font-bold admin-tab tab-active" data-tab="sessions">Sessions</button>
+          <button class="flex-1 py-4 text-sm font-bold admin-tab text-slate-400" data-tab="billing">Billing</button>
           <button class="flex-1 py-4 text-sm font-bold admin-tab text-slate-400" data-tab="tracker">Tracker</button>
           <button class="flex-1 py-4 text-sm font-bold admin-tab text-slate-400" data-tab="history">History</button>
         </div>
 
-        <!-- Billing Section -->
-        <div id="tab-billing" class="admin-tab-content space-y-6">
+        <!-- Sessions Management -->
+        <div id="tab-sessions" class="admin-tab-content space-y-6">
           <div class="glass-card p-6 rounded-3xl shadow-sm space-y-4">
-            <h3 class="text-lg font-bold">Session Billing</h3>
+            <h3 class="text-lg font-bold">Create New Session</h3>
             <div class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Court Charge</label>
-                  <input type="number" id="bill-court" placeholder="0" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Shuttle Charge</label>
-                  <input type="number" id="bill-shuttle" placeholder="0" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
-                </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Date</label>
+                <input type="date" id="new-session-date" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
               </div>
               <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Actual Players</label>
-                <div class="flex gap-2">
-                  <input type="number" id="bill-count" value="${confirmedNames.length}" class="w-20 p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-base">
-                  <button id="btn-reconcile" class="flex-grow p-4 bg-blue-100 text-blue-600 rounded-2xl font-bold text-sm">Reconcile</button>
+                <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Time (e.g. 7:00 AM - 9:00 AM)</label>
+                <input type="text" id="new-session-time" placeholder="Enter time" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
+              </div>
+              <button id="btn-create-session" class="w-full p-4 bg-blue-600 text-white font-bold rounded-2xl shadow-lg shadow-blue-200">Create & Get Link</button>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <h3 class="text-sm font-bold text-slate-400 uppercase ml-1">Active Scheduled Sessions</h3>
+            <div id="admin-sessions-list" class="space-y-3">
+               <!-- Injected -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Section -->
+        <div id="tab-billing" class="admin-tab-content hidden space-y-6">
+          ${!activeSession ? `
+            <div class="space-y-4">
+              <div class="p-6 text-center text-slate-400 italic">Select an active session to generate a bill</div>
+              <div id="billing-session-selection-list" class="space-y-3">
+                 <!-- Injected by JS: List of sessions that need billing -->
+              </div>
+            </div>
+          ` : `
+            <div class="glass-card p-6 rounded-3xl shadow-sm space-y-4">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-lg font-bold">Billing: ${activeSession.time}</h3>
+                  <p class="text-xs text-slate-400">${UTILS.formatDate(activeSession.date)}</p>
+                </div>
+                <button id="btn-change-billing-session" class="text-xs text-blue-600 font-bold">Change</button>
+              </div>
+              <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Court Charge</label>
+                    <input type="number" id="bill-court" placeholder="0" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Shuttle Charge</label>
+                    <input type="number" id="bill-shuttle" placeholder="0" class="w-full p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none">
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase mb-1 ml-1">Actual Players</label>
+                  <div class="flex gap-2">
+                    <input type="number" id="bill-count" value="${confirmedNames.length}" class="w-20 p-4 bg-slate-100 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                    <button id="btn-reconcile" class="flex-grow p-4 bg-blue-100 text-blue-600 rounded-2xl font-bold text-sm">Reconcile</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Reconciliation UI (Dynamic) -->
-          <div id="reconciliation-area" class="hidden glass-card p-6 rounded-3xl shadow-sm border-2 border-blue-100">
-            <!-- Content Injected by JS -->
-          </div>
+            <div id="reconciliation-area" class="hidden glass-card p-6 rounded-3xl shadow-sm border-2 border-blue-100"></div>
 
-          <button id="btn-generate-split" class="w-full p-5 bg-blue-600 text-white font-extrabold rounded-2xl shadow-xl shadow-blue-200 active:scale-95 transition-all">
-            GENERATE BILL & QR
-          </button>
+            <button id="btn-generate-split" class="w-full p-5 bg-blue-600 text-white font-extrabold rounded-2xl shadow-xl shadow-blue-200 active:scale-95 transition-all">
+              GENERATE BILL & QR
+            </button>
 
-          <!-- Poster Preview (Hidden until generated) -->
-          <div id="poster-preview-container" class="hidden space-y-4">
-             <div class="flex justify-between items-center">
-                <h3 class="text-sm font-bold text-slate-400 uppercase">Poster Preview</h3>
-                <button id="btn-share-wa" class="flex items-center gap-2 text-blue-600 font-bold text-sm">
-                  <i data-lucide="share-2" class="w-4 h-4"></i> Share to WhatsApp
-                </button>
-             </div>
-             <div id="poster-rendering-box" class="flex justify-center bg-slate-200 p-4 rounded-3xl overflow-hidden">
-                <!-- Poster HTML will be cloned here for visual preview if needed, or we just show a 'Generated' message -->
-                <p class="text-slate-500 text-xs italic">Poster ready for sharing</p>
-             </div>
-          </div>
+            <div id="poster-preview-container" class="hidden space-y-4">
+               <div class="flex justify-between items-center">
+                  <h3 class="text-sm font-bold text-slate-400 uppercase">Poster Preview</h3>
+                  <button id="btn-share-wa" class="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                    <i data-lucide="share-2" class="w-4 h-4"></i> Share to WhatsApp
+                  </button>
+               </div>
+               <div id="poster-rendering-box" class="flex justify-center bg-slate-200 p-4 rounded-3xl overflow-hidden">
+                  <p class="text-slate-500 text-xs italic">Poster ready for sharing</p>
+               </div>
+            </div>
+          `}
         </div>
 
         <!-- Tracker Section -->
@@ -127,17 +182,13 @@ const UI = {
               <i data-lucide="bell" class="w-4 h-4"></i> Send Reminders
             </button>
           </div>
-          <div id="tracker-list" class="space-y-2">
-            <!-- Rows injected here -->
-          </div>
+          <div id="tracker-list" class="space-y-2"></div>
         </div>
 
         <!-- History Section -->
         <div id="tab-history" class="admin-tab-content hidden space-y-4">
           <h3 class="text-lg font-bold px-1">Past Sessions</h3>
-          <div id="history-list" class="space-y-3">
-            <!-- Cards injected here -->
-          </div>
+          <div id="history-list" class="space-y-3"></div>
         </div>
       </div>
     `;
