@@ -40,8 +40,8 @@ const UTILS = {
     container.innerHTML = '';
     new QRCode(container, {
       text: upiUrl,
-      width: 128,
-      height: 128,
+      width: 150,
+      height: 150,
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.H
