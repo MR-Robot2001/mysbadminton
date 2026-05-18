@@ -444,15 +444,30 @@ Scan QR to pay. 🙏`;
       const data = await API.getTracker();
       const paidCount = data.filter(p => p.paid).length;
       document.getElementById('btn-send-reminder').onclick = () => this.handleReminders(data);
+      
+      const bulkBar = document.getElementById('bulk-action-bar');
+      const selectAll = document.getElementById('select-all-tracker');
+      const selectedCountText = document.getElementById('selected-count');
+      const btnBulkPaid = document.getElementById('btn-bulk-paid');
+      const btnBulkUnpaid = document.getElementById('btn-bulk-unpaid');
+      
+      if (bulkBar) {
+        bulkBar.classList.toggle('hidden', data.length === 0);
+        selectAll.checked = false;
+        selectedCountText.textContent = '0 Selected';
+      }
+
       list.innerHTML = `
         <div class="bg-blue-50 p-4 rounded-2xl mb-4 flex justify-between items-center">
           <span class="text-sm font-bold text-blue-800">Active Bills (Last 48h)</span>
           <span class="text-blue-600 font-extrabold">${paidCount} / ${data.length}</span>
         </div>
         ${data.length === 0 ? '<p class="text-center text-slate-400 py-10">No sessions with bills in last 48h</p>' : ''}
-        ${data.map(p => `
-          <div class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-100">
-            <div class="flex flex-col">
+        ${data.map((p, idx) => `
+          <div class="flex items-center gap-3 p-4 bg-white rounded-2xl border border-slate-100">
+            <input type="checkbox" class="tracker-checkbox w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" 
+                   data-name="${p.name}" data-sid="${p.sessionId}">
+            <div class="flex-grow flex flex-col">
               <span class="font-bold text-sm">${p.name}</span>
               <div class="flex gap-2 text-[10px]">
                 <span class="text-slate-400 font-bold">₹${p.amount}</span>
@@ -468,15 +483,56 @@ Scan QR to pay. 🙏`;
         `).join('')}
       `;
       lucide.createIcons();
+
+      const checkboxes = document.querySelectorAll('.tracker-checkbox');
+      const updateSelectedCount = () => {
+        const checked = document.querySelectorAll('.tracker-checkbox:checked').length;
+        selectedCountText.textContent = `${checked} Selected`;
+        selectAll.checked = checked === checkboxes.length && checkboxes.length > 0;
+      };
+
+      if (selectAll) {
+        selectAll.onclick = () => {
+          checkboxes.forEach(cb => cb.checked = selectAll.checked);
+          updateSelectedCount();
+        };
+      }
+
+      checkboxes.forEach(cb => {
+        cb.onchange = updateSelectedCount;
+      });
+
+      const handleBulkUpdate = async (paid) => {
+        const selected = Array.from(document.querySelectorAll('.tracker-checkbox:checked')).map(cb => ({
+          name: cb.dataset.name,
+          sessionId: cb.dataset.sid
+        }));
+        if (selected.length === 0) return UTILS.showToast('Select players first');
+        
+        UTILS.setLoading(true);
+        try {
+          await API.markMultiplePaid(selected, paid);
+          UTILS.showToast(`Updated ${selected.length} players`);
+          await this.loadTracker();
+        } catch (e) {
+          UTILS.showToast('Bulk update failed', 'error');
+        } finally {
+          UTILS.setLoading(false);
+        }
+      };
+
+      if (btnBulkPaid) btnBulkPaid.onclick = () => handleBulkUpdate(true);
+      if (btnBulkUnpaid) btnBulkUnpaid.onclick = () => handleBulkUpdate(false);
+
       document.querySelectorAll('.toggle-paid').forEach(btn => {
         btn.onclick = async () => {
           btn.innerHTML = '<div class="loader w-4 h-4"></div>';
           try {
             await API.markPaid(btn.dataset.name, btn.dataset.paid !== 'true', btn.dataset.sid);
-            this.loadTracker();
+            await this.loadTracker();
           } catch (e) {
             UTILS.showToast('Update failed', 'error');
-            this.loadTracker();
+            await this.loadTracker();
           }
         };
       });

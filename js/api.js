@@ -68,6 +68,10 @@ const API = {
     return this.request('markPaid', 'POST', { name, paid, sessionId });
   },
 
+  markMultiplePaid(updates, paid) {
+    return this.request('markMultiplePaid', 'POST', { updates, paid });
+  },
+
   getTracker() {
     return this.request('getTracker', 'GET');
   },

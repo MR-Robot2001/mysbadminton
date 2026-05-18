@@ -182,6 +182,23 @@ const UI = {
               <i data-lucide="bell" class="w-4 h-4"></i> Send Reminders
             </button>
           </div>
+
+          <!-- Bulk Action Bar -->
+          <div id="bulk-action-bar" class="hidden bg-white border border-blue-100 rounded-2xl p-3 flex justify-between items-center shadow-sm animate-fade-in">
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="select-all-tracker" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+              <span id="selected-count" class="text-xs font-bold text-slate-500 uppercase">0 Selected</span>
+            </div>
+            <div class="flex gap-2">
+              <button id="btn-bulk-unpaid" class="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-xl active:scale-95 transition-all border border-slate-200">
+                UNPAID
+              </button>
+              <button id="btn-bulk-paid" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-100 active:scale-95 transition-all">
+                PAID
+              </button>
+            </div>
+          </div>
+
           <div id="tracker-list" class="space-y-2"></div>
         </div>
 

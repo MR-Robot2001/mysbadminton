@@ -72,6 +72,9 @@ function doPost(e) {
       case "markPaid":
         result.success = markPaid(params.name, params.paid, params.sessionId);
         break;
+      case "markMultiplePaid":
+        result.success = markMultiplePaid(params.updates, params.paid);
+        break;
       default:
         result.error = "Invalid action";
     }
@@ -325,6 +328,24 @@ function markPaid(name, paid, sessionId) {
     }
   }
   return false;
+}
+
+function markMultiplePaid(updates, paid) {
+  const sheet = getSheet(SHEET_NAMES.PAYMENTS);
+  const data = sheet.getDataRange().getValues();
+  let count = 0;
+
+  for (let i = 1; i < data.length; i++) {
+    const rowSessionId = data[i][5];
+    const rowName = data[i][1].toString().toLowerCase();
+    
+    const match = updates.find(u => u.sessionId === rowSessionId && u.name.toLowerCase() === rowName);
+    if (match) {
+      sheet.getRange(i + 1, 4).setValue(paid);
+      count++;
+    }
+  }
+  return count > 0;
 }
 
 function getSessionHistory() {
